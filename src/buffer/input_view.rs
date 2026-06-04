@@ -586,7 +586,7 @@ pub fn view<'a>(
                 config.display.truncation_character,
                 None,
                 true,
-                None,
+                previews,
             );
 
             container(user_display.into_element(
