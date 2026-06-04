@@ -751,6 +751,7 @@ fn reply_bar<'a>(
         registry,
         config,
         theme,
+        None,
     );
 
     container(

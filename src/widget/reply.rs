@@ -1,6 +1,6 @@
 use data::config::buffer::AccessLevelFormat;
 use data::user::ChannelUsers;
-use data::{Config, message, metadata};
+use data::{Config, message, metadata, preview};
 use iced::alignment;
 use iced::widget::text::Wrapping;
 use iced::widget::{row, text};
@@ -19,6 +19,7 @@ pub fn reply_preview_content<'a, Message: 'a + std::clone::Clone>(
     registry: &'a dyn metadata::Registry,
     config: &'a Config,
     theme: &'a Theme,
+    previews: Option<&preview::Collection>,
 ) -> Element<'a, Message> {
     let char_width = font::width_from_str("a", &config.font);
 
@@ -75,7 +76,7 @@ pub fn reply_preview_content<'a, Message: 'a + std::clone::Clone>(
                     config.display.truncation_character,
                     None,
                     false,
-                    None,
+                    previews,
                 )
             } else {
                 UserDisplay::new(
@@ -88,7 +89,7 @@ pub fn reply_preview_content<'a, Message: 'a + std::clone::Clone>(
                     config.display.truncation_character,
                     Some(&config.buffer.nickname.brackets),
                     false,
-                    None,
+                    previews,
                 )
             };
             row = row.push(user_display.into_element(

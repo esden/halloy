@@ -1455,6 +1455,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
             message,
             right_alignment_middle_width,
             hovered_reply,
+            previews,
         ) {
             column![reply_row, message_element].into()
         } else {
@@ -1515,6 +1516,7 @@ impl<'a> ChannelQueryLayout<'a> {
         message: &'a data::Message,
         right_aligned_width: Option<f32>,
         hovered_reply: Option<message::Hash>,
+        previews: Option<&preview::Collection>,
     ) -> Option<Element<'a, Message>> {
         message.reply_to.as_ref()?;
 
@@ -1574,7 +1576,7 @@ impl<'a> ChannelQueryLayout<'a> {
                         self.config.display.truncation_character,
                         Some(&self.config.buffer.nickname.brackets),
                         false,
-                        None,
+                        previews,
                     );
 
                     Some((user, highlight, display))
@@ -1612,6 +1614,7 @@ impl<'a> ChannelQueryLayout<'a> {
                     reply_redaction.as_ref(),
                     *reply_blocked,
                     *reply_is_action,
+                    previews,
                 )
             });
 
@@ -1625,6 +1628,7 @@ impl<'a> ChannelQueryLayout<'a> {
                 self.registry,
                 self.config,
                 self.theme,
+                previews,
             )
         } else {
             reply_preview_content(
@@ -1636,6 +1640,7 @@ impl<'a> ChannelQueryLayout<'a> {
                 self.registry,
                 self.config,
                 self.theme,
+                previews,
             )
         };
 
@@ -1752,6 +1757,7 @@ impl<'a> ChannelQueryLayout<'a> {
         redaction: Option<&'a data::redaction::Redaction>,
         is_blocked: bool,
         is_action: bool,
+        previews: Option<&preview::Collection>
     ) -> Element<'a, Message> {
         let kind = self.target_kind();
         let text_size =
@@ -1935,6 +1941,7 @@ impl<'a> ChannelQueryLayout<'a> {
                 self.registry,
                 self.config,
                 self.theme,
+                previews,
             )
         });
 

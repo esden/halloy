@@ -331,7 +331,6 @@ impl <'av> UserDisplayData<'av> {
     ) -> Element<'a, M> {
         let font =
             theme::font_style::nickname(theme, is_offline).map(font::get);
-
         
         let avatar: Option<Element<'a, M>> = self.avatar.clone().map(|avatar| {
             let content: Element<'a, M> = match avatar {
