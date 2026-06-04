@@ -314,6 +314,7 @@ pub fn view<'a>(
                 None,
                 &state.server,
                 registry,
+                Some(&previews),
                 config,
                 theme,
                 filehost_url,

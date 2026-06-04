@@ -154,6 +154,7 @@ pub fn view<'a>(
             None,
             &state.server,
             registry,
+            Some(&previews.collection()),
             config,
             theme,
             filehost_url,

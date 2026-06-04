@@ -15,7 +15,7 @@ use data::rate_limit::TokenPriority;
 use data::server::Server;
 use data::target::Target;
 use data::user::{ChannelUsers, Nick};
-use data::{Config, User, client, command, message, metadata, shortcut};
+use data::{Config, User, client, command, message, metadata, preview, shortcut};
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, mouse};
 use iced::widget::text::{Shaping, Wrapping};
@@ -348,6 +348,7 @@ pub fn view<'a>(
     channel_users: Option<&'a ChannelUsers>,
     server: &'a Server,
     registry: &'a dyn metadata::Registry,
+    previews: Option<&preview::Collection>,
     config: &'a Config,
     theme: &'a Theme,
     filehost_url: Option<&'a str>,
@@ -672,7 +673,7 @@ pub fn view<'a>(
         });
 
     let maybe_reply_bar = state.reply_preview.as_ref().map(|reply_preview| {
-        reply_bar(reply_preview, channel_users, registry, config, theme)
+        reply_bar(reply_preview, channel_users, registry, previews, config, theme)
     });
 
     let input_row = container(
@@ -737,6 +738,7 @@ fn reply_bar<'a>(
     reply_preview: &'a message::ReplyPreview,
     channel_users: Option<&'a ChannelUsers>,
     registry: &'a dyn metadata::Registry,
+    previews: Option<&preview::Collection>,
     config: &'a Config,
     theme: &'a Theme,
 ) -> crate::widget::Element<'a, Message> {
@@ -751,7 +753,7 @@ fn reply_bar<'a>(
         registry,
         config,
         theme,
-        None,
+        previews,
     );
 
     container(

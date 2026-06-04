@@ -209,6 +209,7 @@ pub fn view<'a>(
             users,
             &state.server,
             registry,
+            Some(&previews.collection()),
             config,
             theme,
             filehost_url,
