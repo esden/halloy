@@ -15,6 +15,8 @@ use crate::widget::TextExt as _;
 use crate::{Theme, buffer, font, icon, theme, widget};
 
 const AVATAR_SIZE: u16 = 18;
+const AVATAR_LOADING_ICON_SIZE: u16 = AVATAR_SIZE - 6;
+const AVATAR_SPACE: u16 = 3;
 
 #[derive(Clone)]
 pub struct UserDisplay<'av> {
@@ -335,7 +337,7 @@ impl <'av> UserDisplayData<'av> {
         let avatar: Option<Element<'a, M>> = self.avatar.clone().map(|avatar| {
             let content: Element<'a, M> = match avatar {
                 buffer::context_menu::UserAvatar::Pending => 
-                    center(icon::people().size(12).style(theme::text::secondary))
+                    center(icon::people().size(f32::from(AVATAR_LOADING_ICON_SIZE)).style(theme::text::secondary))
                         .width(Length::Fixed(f32::from(AVATAR_SIZE)))
                         .height(Length::Fixed(f32::from(AVATAR_SIZE)))
                         .style(|theme| {
@@ -362,7 +364,7 @@ impl <'av> UserDisplayData<'av> {
             };
 
             container(content)
-                .width(Length::Fixed(f32::from(AVATAR_SIZE)))
+                .align_left(Length::Fixed(f32::from(AVATAR_SIZE + AVATAR_SPACE)))
                 .height(Length::Fixed(f32::from(AVATAR_SIZE)))
                 .into()
         });
@@ -434,7 +436,7 @@ impl <'av> UserDisplayData<'av> {
         }
 
         if self.avatar.is_some() {
-            width += AVATAR_SIZE as f32;
+            width += f32::from(AVATAR_SIZE + AVATAR_SPACE);
         }
 
         width
