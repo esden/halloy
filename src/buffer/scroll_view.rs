@@ -355,7 +355,7 @@ pub fn view<'a>(
                             config.display.truncation_character,
                             Some(&config.buffer.nickname.brackets),
                             true,
-                            None,
+                            previews.map(|p| p.collection()),
                         );
 
                         Some(user_display.width(config) + 1.0)

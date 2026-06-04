@@ -433,6 +433,10 @@ impl <'av> UserDisplayData<'av> {
             }
         }
 
+        if self.avatar.is_some() {
+            width += AVATAR_SIZE as f32;
+        }
+
         width
     }
 
