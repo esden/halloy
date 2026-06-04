@@ -197,6 +197,7 @@ pub fn view<'a>(
                             config.display.truncation_character,
                             Some(&config.buffer.nickname.brackets),
                             true,
+                            Some(&previews),
                         );
 
                         let nick: Element<_> = if hide_nickname {

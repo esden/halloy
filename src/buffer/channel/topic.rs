@@ -72,6 +72,7 @@ pub fn view<'a>(
             config.display.truncation_character,
             None,
             true,
+            Some(&previews),
         );
 
         // If user is in channel, we return user_context component.

@@ -127,6 +127,7 @@ pub fn view<'a>(
                         config.display.truncation_character,
                         Some(&config.buffer.nickname.brackets),
                         true,
+                        Some(&previews),
                     );
 
                     let nick_text = user_display.into_element(

@@ -120,6 +120,7 @@ where
                     config.display.truncation_character,
                     None,
                     false,
+                    None,
                 )
                 .into_element(
                     user, false, false, None, None, false, false, theme, config,

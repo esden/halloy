@@ -1,27 +1,30 @@
 use data::buffer::Brackets;
 use data::config::buffer::{AccessLevelFormat, Dimmed};
+use data::config::context_menu;
 use data::config::display::nickname::Metadata;
 use data::target::{Query, TargetRef};
 use data::user::AccessLevel;
-use data::{Config, User, metadata};
-use iced::Color;
+use data::{Config, User, metadata, preview};
+use iced::{Background, Border, Color, ContentFit, Length};
 use iced::alignment::Vertical;
 use iced::widget::text::Wrapping;
-use iced::widget::{container, row};
+use iced::widget::{center, container, row};
 use unicode_segmentation::UnicodeSegmentation;
 
 use super::{Element, selectable_text, text};
 use crate::widget::TextExt as _;
-use crate::{Theme, font, theme, widget};
+use crate::{Theme, buffer, font, icon, theme, widget};
+
+const AVATAR_SIZE: u16 = 18;
 
 #[derive(Clone)]
-pub struct UserDisplay {
-    base: UserDisplayData,
-    tooltip: Option<UserDisplayData>,
+pub struct UserDisplay<'av> {
+    base: UserDisplayData<'av>,
+    tooltip: Option<UserDisplayData<'av>>,
     color: Option<Color>,
 }
 
-impl UserDisplay {
+impl <'av> UserDisplay<'av> {
     pub fn new(
         user: &User,
         show_access_levels: AccessLevelFormat,
@@ -32,6 +35,7 @@ impl UserDisplay {
         truncation_character: char,
         brackets: Option<&Brackets>,
         with_tooltip: bool,
+        previews: Option<&'av preview::Collection>,
     ) -> Self {
         let query = Query::from(user);
 
@@ -48,6 +52,7 @@ impl UserDisplay {
             show_bot_icon,
             registry,
             enabled,
+            previews,
         );
 
         if let Some(truncated) = truncate.and_then(|truncation_length| {
@@ -177,13 +182,14 @@ impl UserDisplay {
 }
 
 #[derive(Clone)]
-pub struct UserDisplayData {
+pub struct UserDisplayData<'a> {
     left: String,
     bot_icon: bool,
     right: Option<String>,
+    avatar: Option<buffer::context_menu::UserAvatar<'a>>,
 }
 
-impl UserDisplayData {
+impl <'av> UserDisplayData<'av> {
     pub fn new(
         user: &User,
         query: Query,
@@ -191,6 +197,7 @@ impl UserDisplayData {
         show_bot_icon: bool,
         registry: &dyn metadata::Registry,
         enabled: &[Metadata],
+        previews: Option<&'av preview::Collection>,
     ) -> Self {
         let access_levels = match show_access_levels {
             AccessLevelFormat::All => {
@@ -235,6 +242,12 @@ impl UserDisplayData {
             None
         };
 
+        let avatar: Option<buffer::context_menu::UserAvatar<'av>> = if let Some(previews) = previews {
+            buffer::context_menu::user_avatar(user, registry, &previews)
+        } else {
+            None
+        };
+
         if bot_icon {
             let (left, right) = if let Some(display_name) = display_name {
                 (
@@ -256,6 +269,7 @@ impl UserDisplayData {
                 left,
                 bot_icon,
                 right,
+                avatar,
             }
         } else {
             let left = match (display_name, pronouns) {
@@ -277,6 +291,7 @@ impl UserDisplayData {
                 left,
                 bot_icon,
                 right: None,
+                avatar,
             }
         }
     }
@@ -316,6 +331,42 @@ impl UserDisplayData {
     ) -> Element<'a, M> {
         let font =
             theme::font_style::nickname(theme, is_offline).map(font::get);
+
+        
+        let avatar: Option<Element<'a, M>> = self.avatar.clone().map(|avatar| {
+            let content: Element<'a, M> = match avatar {
+                buffer::context_menu::UserAvatar::Pending => 
+                    center(icon::people().size(16).style(theme::text::secondary))
+                        .width(Length::Fixed(f32::from(AVATAR_SIZE)))
+                        .height(Length::Fixed(f32::from(AVATAR_SIZE)))
+                        .style(|theme| {
+                            let general = theme.styles().general;
+                            let text = theme.styles().text;
+
+                            container::Style {
+                                background: Some(Background::Color(general.background)),
+                                border: Border {
+                                    radius: 4.0.into(),
+                                    width: 0.5,
+                                    color: text.secondary.color,
+                                },
+                                ..Default::default()
+                            }
+                        })
+                        .into(),
+                buffer::context_menu::UserAvatar::Loaded(image_data) => {
+                    container(widget::image::from_data(image_data, true, ContentFit::Cover))
+                        .width(f32::from(AVATAR_SIZE))
+                        .height(f32::from(AVATAR_SIZE))
+                        .into()
+                },
+            };
+
+            container(content)
+                .width(Length::Fixed(f32::from(AVATAR_SIZE)))
+                .height(Length::Fixed(f32::from(AVATAR_SIZE)))
+                .into()
+        });
 
         // selectable_text carries selection state and handles copy interactions;
         // plain text is used where selection would be undesirable (e.g. input bar)
@@ -360,7 +411,14 @@ impl UserDisplayData {
             .align_y(Vertical::Center)
             .into()
         } else {
-            text_piece(self.left, font)
+            if let Some(avatar) = avatar {
+                row![
+                    avatar,
+                    text_piece(self.left, font),
+                ].into()
+            } else {
+                text_piece(self.left, font)
+            }
         }
     }
 
@@ -397,6 +455,7 @@ impl UserDisplayData {
                 ),
                 bot_icon: false,
                 right: None,
+                avatar: self.avatar.clone(),
             });
         } else if self.bot_icon {
             if truncation_length < left_length.saturating_add(2) {
@@ -407,6 +466,7 @@ impl UserDisplayData {
                     ),
                     bot_icon: false,
                     right: None,
+                    avatar: self.avatar.clone(),
                 });
             } else {
                 let right_length = self
@@ -440,6 +500,7 @@ impl UserDisplayData {
                                 .collect::<String>()
                             )
                         }),
+                        avatar: self.avatar.clone()
                     });
                 }
             }
@@ -459,6 +520,7 @@ impl UserDisplayData {
                             .map(|right| format!("{right}{}", brackets.right))
                             .unwrap_or(brackets.right.clone()),
                     ),
+                    avatar: self.avatar
                 }
             } else {
                 UserDisplayData {
@@ -468,6 +530,7 @@ impl UserDisplayData {
                     ),
                     bot_icon: false,
                     right: None,
+                    avatar: self.avatar,
                 }
             }
         } else {

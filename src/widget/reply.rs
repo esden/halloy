@@ -75,6 +75,7 @@ pub fn reply_preview_content<'a, Message: 'a + std::clone::Clone>(
                     config.display.truncation_character,
                     None,
                     false,
+                    None,
                 )
             } else {
                 UserDisplay::new(
@@ -87,6 +88,7 @@ pub fn reply_preview_content<'a, Message: 'a + std::clone::Clone>(
                     config.display.truncation_character,
                     Some(&config.buffer.nickname.brackets),
                     false,
+                    None,
                 )
             };
             row = row.push(user_display.into_element(

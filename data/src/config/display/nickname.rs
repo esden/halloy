@@ -6,6 +6,7 @@ pub enum Metadata {
     DisplayName,
     Pronouns,
     Color,
+    Avatar,
 }
 
 pub fn format(

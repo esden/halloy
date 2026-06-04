@@ -1268,7 +1268,7 @@ fn user_metadata<'a>(
                     .height(f32::from(AVATAR_SIZE))
                     .into()
             }
-            UserAvatar::Pending => avatar_placeholder(),
+            UserAvatar::Pending => avatar_placeholder(AVATAR_SIZE),
         };
 
         container(content)
@@ -1389,10 +1389,10 @@ pub fn user_avatar<'a>(
     })
 }
 
-fn avatar_placeholder<'a>() -> Element<'a, Message> {
+pub fn avatar_placeholder<'a>(size: u16) -> Element<'a, Message> {
     center(icon::people().size(16).style(theme::text::secondary))
-        .width(Length::Fixed(f32::from(AVATAR_SIZE)))
-        .height(Length::Fixed(f32::from(AVATAR_SIZE)))
+        .width(Length::Fixed(f32::from(size)))
+        .height(Length::Fixed(f32::from(size)))
         .style(|theme| {
             let general = theme.styles().general;
             let text = theme.styles().text;

@@ -353,6 +353,7 @@ pub fn view<'a>(
                             config.display.truncation_character,
                             Some(&config.buffer.nickname.brackets),
                             true,
+                            None,
                         );
 
                         Some(user_display.width(config) + 1.0)

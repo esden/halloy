@@ -556,6 +556,7 @@ impl<'a> ChannelQueryLayout<'a> {
             self.config.display.truncation_character,
             Some(&self.config.buffer.nickname.brackets),
             true,
+            None,
         );
 
         let nick_element: Element<_> = if hide_nickname {
@@ -1570,6 +1571,7 @@ impl<'a> ChannelQueryLayout<'a> {
                         self.config.display.truncation_character,
                         Some(&self.config.buffer.nickname.brackets),
                         false,
+                        None,
                     );
 
                     Some((user, highlight, display))

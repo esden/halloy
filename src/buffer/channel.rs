@@ -654,6 +654,7 @@ mod nick_list {
                         config.display.truncation_character,
                         None,
                         true,
+                        Some(previews)
                     ),
                 )
             })
