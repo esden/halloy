@@ -1,6 +1,5 @@
 use data::buffer::Brackets;
 use data::config::buffer::{AccessLevelFormat, Dimmed};
-use data::config::context_menu;
 use data::config::display::nickname::Metadata;
 use data::target::{Query, TargetRef};
 use data::user::AccessLevel;
@@ -242,6 +241,7 @@ impl <'av> UserDisplayData<'av> {
             None
         };
 
+        // TODO, check that the inline avatars are enabled
         let avatar: Option<buffer::context_menu::UserAvatar<'av>> = if let Some(previews) = previews {
             buffer::context_menu::user_avatar(user, registry, &previews)
         } else {
@@ -336,7 +336,7 @@ impl <'av> UserDisplayData<'av> {
         let avatar: Option<Element<'a, M>> = self.avatar.clone().map(|avatar| {
             let content: Element<'a, M> = match avatar {
                 buffer::context_menu::UserAvatar::Pending => 
-                    center(icon::people().size(16).style(theme::text::secondary))
+                    center(icon::people().size(12).style(theme::text::secondary))
                         .width(Length::Fixed(f32::from(AVATAR_SIZE)))
                         .height(Length::Fixed(f32::from(AVATAR_SIZE)))
                         .style(|theme| {

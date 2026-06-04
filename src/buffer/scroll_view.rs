@@ -153,6 +153,7 @@ pub trait LayoutMessage<'a> {
         visible_url_messages: &HashMap<message::Hash, Vec<url::Url>>,
         hovered_preview: Option<(message::Hash, usize)>,
         hovered_reply: Option<message::Hash>,
+        previews: Option<&preview::Collection>,
     ) -> Option<Element<'a, Message>>;
 }
 
@@ -177,6 +178,7 @@ where
         _visible_url_messages: &HashMap<message::Hash, Vec<url::Url>>,
         _hovered_preview: Option<(message::Hash, usize)>,
         _hovered_reply: Option<message::Hash>,
+        _previews: Option<&preview::Collection>,
     ) -> Option<Element<'a, Message>> {
         self(
             message,
@@ -498,6 +500,7 @@ pub fn view<'a>(
                             &state.visible_url_messages,
                             state.hovered_preview,
                             state.hover_highlighted_message,
+                            previews.map(|p| p.collection()),
                         )
                         .map(|element| (message, element)),
                 )

@@ -511,6 +511,7 @@ impl<'a> ChannelQueryLayout<'a> {
         user: &'a User,
         hide_nickname: bool,
         nick_prefix_to_strip: Option<&str>,
+        previews: Option<&preview::Collection>,
     ) -> (
         Option<Element<'a, Message>>,
         Element<'a, Message>,
@@ -556,7 +557,7 @@ impl<'a> ChannelQueryLayout<'a> {
             self.config.display.truncation_character,
             Some(&self.config.buffer.nickname.brackets),
             true,
-            None,
+            previews,
         );
 
         let nick_element: Element<_> = if hide_nickname {
@@ -1073,6 +1074,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
         visible_url_messages: &HashMap<message::Hash, Vec<url::Url>>,
         hovered_preview: Option<(message::Hash, usize)>,
         hovered_reply: Option<message::Hash>,
+        previews: Option<&preview::Collection>
     ) -> Option<Element<'a, Message>> {
         let mut prefixes: Option<Element<_>> = self.format_prefixes(message);
 
@@ -1191,6 +1193,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
                 user,
                 hide_nickname,
                 reply_nick_to_strip,
+                previews
             )),
             message::Source::Server(server_message) => {
                 Some(self.format_server_message(
