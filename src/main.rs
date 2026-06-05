@@ -1972,6 +1972,11 @@ fn handle_client_events(
                     .request_server_icon(clients, server)
                     .map(Message::Dashboard),
             ),
+            Event::LoadUserAvatar(server, avatar_url) => commands.push(
+                dashboard
+                    .load_user_avatar(config, clients, server, avatar_url)
+                    .map(Message::Dashboard),
+            ),
         }
     }
 

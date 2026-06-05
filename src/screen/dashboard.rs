@@ -4845,6 +4845,39 @@ impl Dashboard {
             })
         }
     }
+
+    pub fn load_user_avatar(&mut self, config: &Config, clients: &mut data::client::Map, server: Server, avatar_url: url::Url) -> Task<Message> {
+        let client = if clients
+            .get_server_proxy_config(&server)
+            .is_some()
+        {
+            clients.get_server_http_client(&server)
+        } else {
+            self.http_client.clone()
+        };
+
+        if let Some(client) = client
+            && !self.previews.contains_key(&avatar_url)
+        {
+            self.previews
+                .insert(avatar_url.clone(), preview::State::Loading);
+            Task::perform(
+                data::preview::load_avatar(
+                    avatar_url.clone(),
+                    client,
+                    config.metadata.avatar.clone(),
+                    config.preview.clone(),
+                    self.previews_cache.clone(),
+                ),
+                move |result| {
+                    Message::LoadPreview((avatar_url.clone(), result))
+                },
+            )
+        } else {
+            Task::none()
+        }
+    }
+
 }
 
 fn mark_server_as_read(

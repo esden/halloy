@@ -177,6 +177,7 @@ pub enum Event {
     AddToSidebar(target::Query),
     Disconnect(Option<String>),
     UpdateIcon,
+    LoadUserAvatar(Server, url::Url),
 }
 
 struct ChatHistoryRequest {
@@ -905,6 +906,8 @@ impl Client {
                 })?
             };
         }
+
+        let mut events = Vec::<Event>::new();
 
         match &message.command {
             Command::BATCH(batch, params) => {
@@ -3299,6 +3302,15 @@ impl Client {
                         key.clone(),
                         value.clone(),
                     );
+                    if key == "avatar" {
+                        match url::Url::parse(&value) {
+                            Ok(url) => events.push(Event::LoadUserAvatar(self.server.clone(), url.clone())),
+                            Err(err) =>
+                                log::error!("[{}] Failed to parse avatar url \"{value}\" for [{target}] with: \"{err}\"",
+                                self.server,
+                            ),
+                        }
+                    }
                 }
             }
             Command::Numeric(RPL_KEYVALUE, args) => {
@@ -3355,18 +3367,20 @@ impl Client {
         if let Some(target) =
             context.map(Context::buffer).as_ref().map(Destination::from)
         {
-            Ok(vec![Event::WithTarget {
+            events.push(Event::WithTarget {
                 message,
                 our_nick: self.nickname().to_owned(),
                 target,
                 deduplicate: false,
-            }])
+            });
+            Ok(events)
         } else {
-            Ok(vec![Event::Single {
+            events.push(Event::Single {
                 message,
                 our_nick: self.nickname().to_owned(),
                 deduplicate: false,
-            }])
+            });
+            Ok(events)
         }
     }
 
@@ -4644,7 +4658,8 @@ fn continue_chathistory_between(
             | Event::BouncerNetwork(_, _)
             | Event::AddToSidebar(_)
             | Event::Disconnect(_)
-            | Event::UpdateIcon => None,
+            | Event::UpdateIcon
+            | Event::LoadUserAvatar(_, _) => None,
         });
 
     start_message_reference.map(|start_message_reference| {
@@ -4693,7 +4708,8 @@ fn continue_chathistory_targets(
             | Event::BouncerNetwork(_, _)
             | Event::AddToSidebar(_)
             | Event::Disconnect(_)
-            | Event::UpdateIcon => None,
+            | Event::UpdateIcon 
+            | Event::LoadUserAvatar(_, _) => None,
         });
 
     start_timestamp.map(|start_timestamp| {
